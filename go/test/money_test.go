@@ -4,6 +4,28 @@ import (
 	"testing"
 )
 
+/* 
+	功能清单
+	1、 5 usd * 2 = 10 usd
+	2、 10 EUR * 2 = 20 EUR
+	3、 4002 KRW / 4 = 1000.5 KRW
+	4、 5 USD + 10 EUR = 17 USD
+	5、 1 USD + 110 KRW = 2200 KRW
+	6、 从与Money的乘法相关的那些测试方法中移除重复代码
+*/
+
+func TestAddition(t *testing.T) {
+	var portfolio Portfolio
+	var portfolioInDollars Money
+	fiveDollars := Money{amount: 5, currency: "USD"}
+	tenDollars := Money{amount: 10, currency: "USD"}
+	fifteenDollars := Money{amount: 15, currency: "USD"}
+	portfolio = portfolio.Add(fiveDollars)
+	portfolio = portfolio.Add(tenDollars)
+	portfolioInDollars = portfolio.Evaluate(fiveDollars.currency)
+	assertEqual(t, fifteenDollars, portfolioInDollars)
+}
+
 func assertEqual(t *testing.T, expected, actual Money) {
 	if expected != actual {
 		t.Errorf("Expected %+v, got %+v", expected, actual)
@@ -48,4 +70,18 @@ func (m Money) Times(multiplier int) Money {
 
 func (m Money) Divide(divisor int) Money {
 	return Money{amount: m.amount / float64(divisor), currency: m.currency}
+}
+
+type Portfolio []Money
+
+func (p Portfolio) Add(money Money) Portfolio {
+	return append(p, money)
+}
+
+func (p Portfolio) Evaluate(currency string) Money {
+	total := 0.0
+	for _, money := range p {
+		total = total + money.amount
+	}
+	return Money{amount: total, currency: currency}
 }
