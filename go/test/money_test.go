@@ -17,6 +17,17 @@ import (
 	8、 从与Money的乘法相关的那些测试方法中移除重复代码
 */
 
+func TestAdditionOfDollarsAndEuros(t *testing.T) {
+	var portfolio ts.Portfolio
+	fiveDollars := ts.NewMoney(5, "USD")
+	tenEuros := ts.NewMoney(10, "EUR")
+	portfolio = portfolio.Add(fiveDollars)
+	portfolio = portfolio.Add(tenEuros)
+	actualResult := portfolio.Evaluate("USD")
+	expectedResult := ts.NewMoney(17, "USD")
+	assertEqual(t, expectedResult, actualResult)
+}
+
 func TestAddition(t *testing.T) {
 	var portfolio ts.Portfolio
 	var portfolioInDollars ts.Money
