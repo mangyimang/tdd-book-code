@@ -17,13 +17,26 @@ import (
 	8、 从与Money的乘法相关的那些测试方法中移除重复代码
 */
 
+func TestAdditionWithMultipleMissingExchangeRates(t *testing.T) {
+	var portfolio ts.Portfolio
+
+	portfolio = portfolio.Add(ts.NewMoney(1, "USD"))
+	portfolio = portfolio.Add(ts.NewMoney(1, "EUR"))
+	portfolio = portfolio.Add(ts.NewMoney(1, "KRW"))
+
+	expectedError := "Missing exchange rate(s):[USD->Kalganid,EUR->Kalganid,KRW->Kalganid,]"
+	_, actualError := portfolio.Evaluate("Kalganid")
+
+	assertEqual(t, expectedError, actualError.Error())
+}
+
 func TestAdditionOfDollarsAndWons(t *testing.T) {
 	var portfolio ts.Portfolio
 
 	portfolio = portfolio.Add(ts.NewMoney(1, "USD"))
 	portfolio = portfolio.Add(ts.NewMoney(1100, "KRW"))
 
-	actualResult := portfolio.Evaluate("KRW")
+	actualResult, _ := portfolio.Evaluate("KRW")
 	expectedResult := ts.NewMoney(2200, "KRW")
 	assertEqual(t, expectedResult, actualResult)
 }
@@ -35,7 +48,7 @@ func TestAdditionOfDollarsAndEuros(t *testing.T) {
 	tenEuros := ts.NewMoney(10, "EUR")
 	portfolio = portfolio.Add(fiveDollars)
 	portfolio = portfolio.Add(tenEuros)
-	actualResult := portfolio.Evaluate("USD")
+	actualResult, _ := portfolio.Evaluate("USD")
 	expectedResult := ts.NewMoney(17, "USD")
 	assertEqual(t, expectedResult, actualResult)
 }
@@ -48,11 +61,11 @@ func TestAddition(t *testing.T) {
 	fifteenDollars := ts.NewMoney(15, "USD")
 	portfolio = portfolio.Add(fiveDollars)
 	portfolio = portfolio.Add(tenDollars)
-	portfolioInDollars = portfolio.Evaluate(fiveDollars.Currency())
+	portfolioInDollars, _ = portfolio.Evaluate(fiveDollars.Currency())
 	assertEqual(t, fifteenDollars, portfolioInDollars)
 }
 
-func assertEqual(t *testing.T, expected, actual ts.Money) {
+func assertEqual(t *testing.T, expected, actual interface{}) {
 	if expected != actual {
 		t.Errorf("Expected %+v, got %+v", expected, actual)
 	}
