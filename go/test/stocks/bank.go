@@ -13,7 +13,7 @@ func (b Bank) AddExchangeRate(currencyFrom, currencyTo string, rate float64) {
 
 func (b Bank) Convert(money Money, currencyTo string) (convertedMoney *Money, err error) {
 	var result Money
-	if money.currency == currencyTo {
+	if money.currency == currencyTo { 
 		result = NewMoney(money.amount, currencyTo)
 		return &result, nil
 	}

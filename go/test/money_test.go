@@ -16,6 +16,10 @@ import (
 	6、 删除重复的测试
 	7、 1 USD + 110 KRW = 2200 KRW
 	8、 从与Money的乘法相关的那些测试方法中移除重复代码
+	9、 根据换算所涉及的币种确定汇率
+	10、 改善错误处理机制，以应对相关汇率确实的情况
+	11、 改进货币换算机制的实现方式
+	12、 让汇率能够修改
 */
 
 var bank ts.Bank
@@ -25,6 +29,13 @@ func init() {
 	bank.AddExchangeRate("EUR", "USD", 1.2)
 	bank.AddExchangeRate("USD", "KRW", 1100)
 }
+
+func initExchangeRates() {
+	bank = ts.NewBank()
+	bank.AddExchangeRate("EUR", "USD", 1.2)
+	bank.AddExchangeRate("USD", "KRW", 1100)
+}
+
 
 func TestConversionWithMissingExchangeRate(t *testing.T) {
 	tenEuros := ts.NewMoney(10, "EUR")
@@ -36,14 +47,14 @@ func TestConversionWithMissingExchangeRate(t *testing.T) {
 }
 
 func TestConversion(t *testing.T) {
-	bank := ts.NewBank()
-	bank.AddExchangeRate("EUR", "USD", 1.2)
-
 	tenEuros := ts.NewMoney(10, "EUR")
 	actualResult, err := bank.Convert(tenEuros, "USD")
-	expectedResult := ts.NewMoney(12, "USD")
 	assertNil(t, err)
-	assertEqual(t, expectedResult, *actualResult)
+	assertEqual(t, ts.NewMoney(12, "USD"), *actualResult)
+	bank.AddExchangeRate("EUR", "USD", 1.3)
+	actualResult, err = bank.Convert(tenEuros, "USD")
+	assertNil(t, err)
+	assertEqual(t, ts.NewMoney(13, "USD"), *actualResult)
 }
 
 func assertNil(t *testing.T, actual interface{}) {
@@ -80,6 +91,7 @@ func TestAdditionOfDollarsAndWons(t *testing.T) {
 
 
 func TestAdditionOfDollarsAndEuros(t *testing.T) {
+	initExchangeRates()
 	var portfolio ts.Portfolio
 	fiveDollars := ts.NewMoney(5, "USD")
 	tenEuros := ts.NewMoney(10, "EUR")
